@@ -116,6 +116,46 @@ static nfdresult_t AllocPathSet( NSArray *urls, nfdpathset_t *pathset )
 
 /* public */
 
+nfdresult_t NFD_OpenDirectoryDialog( const char *filterList,
+                            const nfdchar_t *defaultPath,
+                            nfdchar_t **outPath )
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
+    NSOpenPanel *dialog = [NSOpenPanel openPanel];
+    [dialog setAllowsMultipleSelection:NO];
+    [dialog setCanChooseDirectories:YES];
+    [dialog setCanChooseFiles:NO];
+
+    // Build the filter list
+    AddFilterListToDialog(dialog, filterList);
+
+    // Set the starting directory
+    SetDefaultPath(dialog, defaultPath);
+
+    nfdresult_t nfdResult = NFD_CANCEL;
+    if ( [dialog runModal] == NSModalResponseOK )
+    {
+        NSURL *url = [dialog URL];
+        const char *utf8Path = [[url path] UTF8String];
+
+        // byte count, not char count
+        size_t len = strlen(utf8Path);//NFDi_UTF8_Strlen(utf8Path);
+
+        *outPath = NFDi_Malloc( len+1 );
+        if ( !*outPath )
+        {
+            [pool release];
+            return NFD_ERROR;
+        }
+        memcpy( *outPath, utf8Path, len+1 ); /* copy null term */
+        nfdResult = NFD_OKAY;
+    }
+    [pool release];
+
+    return nfdResult;
+}
+
 
 nfdresult_t NFD_OpenDialog( const char *filterList,
                             const nfdchar_t *defaultPath,

@@ -35,6 +35,11 @@ typedef enum {
 
 /* nfd_<targetplatform>.c */
 
+/* directory open dialog */    
+nfdresult_t NFD_OpenDirectoryDialog( const nfdchar_t *filterList,
+                            const nfdchar_t *defaultPath,
+                            nfdchar_t **outPath );
+
 /* single file open dialog */    
 nfdresult_t NFD_OpenDialog( const nfdchar_t *filterList,
                             const nfdchar_t *defaultPath,
